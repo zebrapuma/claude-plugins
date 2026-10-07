@@ -1,0 +1,60 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1" # weekly, to catch dead links, missing tags and Claude Code changes
+
+permissions:
+  contents: read
+
+jobs:
+  marketplace:
+    name: Marketplace manifest and style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install Claude Code
+        run: npm install --global @anthropic-ai/claude-code
+
+      - name: Validate marketplace
+        run: claude plugin validate --strict .
+
+      - name: Every pinned plugin release exists
+        run: |
+          jq -r '.plugins[] | select(.source.source == "github") | "\(.source.repo) \(.source.ref // "")"' .claude-plugin/marketplace.json |
+          while read -r repo ref; do
+            if [ -z "$ref" ]; then
+              echo "$repo: not pinned to a tag"; exit 1
+            fi
+            if git ls-remote --exit-code --tags "https://github.com/$repo.git" "refs/tags/$ref" >/dev/null; then
+              echo "ok $repo@$ref"
+            else
+              echo "$repo: tag $ref not found"; exit 1
+            fi
+          done
+
+      - name: No em or en dashes
+        run: |
+          if grep -rnP '[\x{2013}\x{2014}]' --exclude-dir=.git .; then
+            echo "Replace em/en dashes with a comma, a colon, parentheses or a plain hyphen."
+            exit 1
+          fi
+
+  links:
+    name: Links in documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress "**/*.md"
+          fail: true
