@@ -15,7 +15,7 @@ jobs:
     name: Marketplace manifest and style
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v5
         with:
@@ -52,7 +52,7 @@ jobs:
     name: Links in documentation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: lycheeverse/lychee-action@v2
         with:
