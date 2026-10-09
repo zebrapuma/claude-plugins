@@ -13,7 +13,7 @@
       "source": {
         "source": "github",
         "repo": "zebrapuma/zps-pareto-github-issues",
-        "ref": "zps-pareto--v1.0.0"
+        "ref": "zps-pareto--v1.1.0"
       },
       "description": "Never lose a request again: turn every request into a GitHub issue, score it with the 80/20 rule, and always work on the vital few first, in one repository or across a portfolio.",
       "category": "productivity",
